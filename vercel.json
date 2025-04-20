@@ -1,0 +1,41 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "backend/server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "backend/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "frontend/$1"
+    }
+  ],
+  "env": {
+    "MONGO_URI": "mongodb+srv://riverforoadmin:riverforoadmin@river-foro-cluster0.dr5mydi.mongodb.net/riverforo?retryWrites=true&w=majority&appName=River-Foro-Cluster0",
+    "PUSHER_APP_ID": "1978163",
+    "PUSHER_KEY": "2baff66ce4eb56c9ecc1",
+    "PUSHER_SECRET": "ff5ad14bd7af680622dc",
+    "PUSHER_CLUSTER": "us2",
+    "JWT_SECRET": "riverforo-jwt-secret-token-2025",
+    "JWT_EXPIRE": "30d",
+    "JWT_COOKIE_EXPIRE": "30",
+    "NODE_ENV": "production",
+    "FRONTEND_URL": "https://riverforo.vercel.app",
+    "ADMIN_EMAIL": "admin@riverforo.com",
+    "ADMIN_PASSWORD": "riverplate85",
+    "ADSENSE_CLIENT_ID": "ca-pub-1234567890123456"
+  }
+}
