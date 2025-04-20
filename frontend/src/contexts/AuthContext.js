@@ -1,203 +1,115 @@
-// AuthContext.js - Context for authentication in RiverForo.com
-
-import React, { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
-import setAuthToken from '../utils/setAuthToken';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 // Create the auth context
-export const AuthContext = createContext();
+const AuthContext = createContext();
 
+// Auth provider component
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Load user data if token exists
+  
+  // Check if user is logged in on initial render
   useEffect(() => {
-    const loadUser = async () => {
-      if (token) {
-        setAuthToken(token);
-        try {
-          const res = await axios.get('/api/auth/me');
-          setUser(res.data.data);
-          setIsAuthenticated(true);
-        } catch (err) {
-          localStorage.removeItem('token');
-          setToken(null);
-          setUser(null);
-          setIsAuthenticated(false);
-          setError(err.response?.data?.error || 'Authentication failed');
+    const checkLoggedIn = async () => {
+      try {
+        // Check for token in localStorage
+        const token = localStorage.getItem('token');
+        
+        if (token) {
+          // For now, just set a basic user object
+          // In a real implementation, you would verify the token with your backend
+          setUser({
+            username: localStorage.getItem('username') || 'User',
+            role: localStorage.getItem('role') || 'user'
+          });
         }
+        
+        setLoading(false);
+      } catch (err) {
+        console.error('Authentication error:', err);
+        setError('Failed to authenticate');
+        setLoading(false);
       }
-      setLoading(false);
     };
-
-    loadUser();
-  }, [token]);
-
-  // Register user
-  const register = async (formData) => {
-    try {
-      const res = await axios.post('/api/auth/register', formData);
-      
-      if (res.data.success) {
-        localStorage.setItem('token', res.data.token);
-        setToken(res.data.token);
-        setError(null);
-        return true;
-      }
-    } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed');
-      return false;
-    }
-  };
-
-  // Login user
-  const login = async (email, password) => {
-    try {
-      const res = await axios.post('/api/auth/login', { email, password });
-      
-      if (res.data.success) {
-        localStorage.setItem('token', res.data.token);
-        setToken(res.data.token);
-        setError(null);
-        return true;
-      }
-    } catch (err) {
-      setError(err.response?.data?.error || 'Login failed');
-      return false;
-    }
-  };
-
-  // Social login
-  const socialLogin = async (provider, userData) => {
-    try {
-      const res = await axios.post(`/api/auth/social/${provider}`, userData);
-      
-      if (res.data.success) {
-        localStorage.setItem('token', res.data.token);
-        setToken(res.data.token);
-        setError(null);
-        return true;
-      }
-    } catch (err) {
-      setError(err.response?.data?.error || 'Social login failed');
-      return false;
-    }
-  };
-
-  // Logout user
-  const logout = async () => {
-    try {
-      await axios.get('/api/auth/logout');
-    } catch (err) {
-      console.error('Logout error:', err);
-    }
     
+    checkLoggedIn();
+  }, []);
+  
+  // Login function
+  const login = async (credentials) => {
+    try {
+      setLoading(true);
+      
+      // In a real implementation, you would make an API call to your backend
+      // For now, just simulate a successful login
+      const mockUser = {
+        username: credentials.username,
+        role: 'user'
+      };
+      
+      // Store user info in localStorage
+      localStorage.setItem('token', 'mock-token');
+      localStorage.setItem('username', credentials.username);
+      localStorage.setItem('role', 'user');
+      
+      setUser(mockUser);
+      setLoading(false);
+      return { success: true };
+    } catch (err) {
+      setError('Login failed');
+      setLoading(false);
+      return { success: false, error: err.message };
+    }
+  };
+  
+  // Logout function
+  const logout = () => {
     localStorage.removeItem('token');
-    setToken(null);
+    localStorage.removeItem('username');
+    localStorage.removeItem('role');
     setUser(null);
-    setIsAuthenticated(false);
-    setAuthToken(null);
   };
-
-  // Update user profile
-  const updateProfile = async (formData) => {
+  
+  // Register function
+  const register = async (userData) => {
     try {
-      const res = await axios.put(`/api/users/${user._id}`, formData);
+      setLoading(true);
       
-      if (res.data.success) {
-        setUser(res.data.data);
-        setError(null);
-        return true;
-      }
+      // In a real implementation, you would make an API call to your backend
+      // For now, just simulate a successful registration
+      const mockUser = {
+        username: userData.username,
+        role: 'user'
+      };
+      
+      // Store user info in localStorage
+      localStorage.setItem('token', 'mock-token');
+      localStorage.setItem('username', userData.username);
+      localStorage.setItem('role', 'user');
+      
+      setUser(mockUser);
+      setLoading(false);
+      return { success: true };
     } catch (err) {
-      setError(err.response?.data?.error || 'Profile update failed');
-      return false;
+      setError('Registration failed');
+      setLoading(false);
+      return { success: false, error: err.message };
     }
   };
-
-  // Update password
-  const updatePassword = async (currentPassword, newPassword) => {
-    try {
-      const res = await axios.put('/api/auth/updatepassword', {
-        currentPassword,
-        newPassword
-      });
-      
-      if (res.data.success) {
-        localStorage.setItem('token', res.data.token);
-        setToken(res.data.token);
-        setError(null);
-        return true;
-      }
-    } catch (err) {
-      setError(err.response?.data?.error || 'Password update failed');
-      return false;
-    }
-  };
-
-  // Forgot password
-  const forgotPassword = async (email) => {
-    try {
-      const res = await axios.post('/api/auth/forgotpassword', { email });
-      
-      if (res.data.success) {
-        setError(null);
-        return true;
-      }
-    } catch (err) {
-      setError(err.response?.data?.error || 'Password reset request failed');
-      return false;
-    }
-  };
-
-  // Reset password
-  const resetPassword = async (resetToken, password) => {
-    try {
-      const res = await axios.put(`/api/auth/resetpassword/${resetToken}`, {
-        password
-      });
-      
-      if (res.data.success) {
-        localStorage.setItem('token', res.data.token);
-        setToken(res.data.token);
-        setError(null);
-        return true;
-      }
-    } catch (err) {
-      setError(err.response?.data?.error || 'Password reset failed');
-      return false;
-    }
-  };
-
-  // Clear errors
-  const clearError = () => {
-    setError(null);
-  };
-
+  
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        token,
-        isAuthenticated,
-        loading,
-        error,
-        register,
-        login,
-        socialLogin,
-        logout,
-        updateProfile,
-        updatePassword,
-        forgotPassword,
-        resetPassword,
-        clearError
-      }}
-    >
+    <AuthContext.Provider value={{ user, loading, error, login, logout, register }}>
       {children}
     </AuthContext.Provider>
   );
+};
+
+// Custom hook to use the auth context
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };

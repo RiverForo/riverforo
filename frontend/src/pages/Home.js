@@ -1,142 +1,145 @@
-// Home.js - Home page component for RiverForo.com
-
-import React, { useContext, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
-import { LanguageContext } from '../../contexts/LanguageContext';
-import { AuthContext } from '../../contexts/AuthContext';
-import CategoryList from '../categories/CategoryList';
-import ThreadPreview from '../threads/ThreadPreview';
-import AdSenseComponent from '../ads/AdSenseComponent';
-import UpcomingMatches from '../widgets/UpcomingMatches';
-import OnlineUsers from '../widgets/OnlineUsers';
-import './Home.scss';
+import React from 'react';
+import { useLanguage } from '../../contexts/LanguageContext';
+import './Home.css';
 
 const Home = () => {
-  const { translations, language } = useContext(LanguageContext);
-  const { isAuthenticated } = useContext(AuthContext);
+  const { language, translations } = useLanguage();
+  const t = translations[language];
   
-  const [categories, setCategories] = useState([]);
-  const [latestThreads, setLatestThreads] = useState([]);
-  const [popularThreads, setPopularThreads] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // Mock data for categories and recent threads
+  const categories = [
+    {
+      id: 1,
+      name: language === 'es' ? 'Noticias y Anuncios' : 'News and Announcements',
+      description: language === 'es' ? 'Noticias oficiales y anuncios sobre River Plate y el foro' : 'Official news and announcements about River Plate and the forum',
+      threadCount: 5,
+      postCount: 23
+    },
+    {
+      id: 2,
+      name: language === 'es' ? 'Discusión General' : 'General Discussion',
+      description: language === 'es' ? 'Discusiones generales sobre River Plate' : 'General discussions about River Plate',
+      threadCount: 12,
+      postCount: 87
+    },
+    {
+      id: 3,
+      name: language === 'es' ? 'Partidos y Eventos' : 'Matches and Events',
+      description: language === 'es' ? 'Discusiones sobre partidos pasados y futuros, y eventos relacionados con River Plate' : 'Discussions about past and upcoming matches, and events related to River Plate',
+      threadCount: 8,
+      postCount: 64
+    }
+  ];
   
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        
-        // Fetch categories
-        const categoriesRes = await axios.get('/api/categories');
-        setCategories(categoriesRes.data.data);
-        
-        // Fetch latest threads
-        const latestThreadsRes = await axios.get('/api/threads?limit=5&sort=-createdAt');
-        setLatestThreads(latestThreadsRes.data.data);
-        
-        // Fetch popular threads
-        const popularThreadsRes = await axios.get('/api/threads?limit=5&sort=-views');
-        setPopularThreads(popularThreadsRes.data.data);
-        
-        setError(null);
-      } catch (err) {
-        setError(err.response?.data?.error || 'Failed to load data');
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchData();
-  }, []);
+  const recentThreads = [
+    {
+      id: 1,
+      title: language === 'es' ? '¡Bienvenidos a RiverForo.com!' : 'Welcome to RiverForo.com!',
+      author: 'admin',
+      category: language === 'es' ? 'Noticias y Anuncios' : 'News and Announcements',
+      replies: 3,
+      views: 120,
+      lastPost: '2025-04-19T14:30:00Z'
+    },
+    {
+      id: 2,
+      title: language === 'es' ? 'Análisis del último partido' : 'Analysis of the last match',
+      author: 'riverplate_fan',
+      category: language === 'es' ? 'Partidos y Eventos' : 'Matches and Events',
+      replies: 15,
+      views: 230,
+      lastPost: '2025-04-18T09:45:00Z'
+    },
+    {
+      id: 3,
+      title: language === 'es' ? 'Rumores de fichajes para la próxima temporada' : 'Transfer rumors for next season',
+      author: 'futbol_expert',
+      category: language === 'es' ? 'Discusión General' : 'General Discussion',
+      replies: 27,
+      views: 412,
+      lastPost: '2025-04-17T22:15:00Z'
+    }
+  ];
   
-  if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-        <p>{translations.loading}</p>
-      </div>
-    );
-  }
-  
-  if (error) {
-    return (
-      <div className="error-container">
-        <h2>{translations.error}</h2>
-        <p>{error}</p>
-      </div>
-    );
-  }
+  // Format date for display
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString(language === 'es' ? 'es-AR' : 'en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
   
   return (
     <div className="home-page">
       <div className="welcome-banner">
-        <div className="banner-content">
-          <h1>RiverForo.com</h1>
-          <p className="banner-subtitle">
-            {language === 'es' 
-              ? 'La comunidad oficial de hinchas de River Plate' 
-              : 'The official River Plate fans community'}
-          </p>
-          
-          {!isAuthenticated && (
-            <div className="banner-actions">
-              <Link to="/register" className="register-button">
-                {translations.register}
-              </Link>
-              <Link to="/login" className="login-button">
-                {translations.login}
-              </Link>
-            </div>
-          )}
-        </div>
+        <h1>{t.welcome}</h1>
+        <p>
+          {language === 'es' 
+            ? 'La comunidad online para todos los hinchas de River Plate. Discute sobre partidos, jugadores, noticias y más.'
+            : 'The online community for all River Plate fans. Discuss matches, players, news, and more.'}
+        </p>
       </div>
       
       <div className="home-content">
-        <div className="main-content">
-          <section className="categories-section">
-            <h2>{translations.categories}</h2>
-            <CategoryList categories={categories} />
-          </section>
-          
-          <AdSenseComponent adSlot="1234567890" format="horizontal" />
-          
-          <section className="latest-threads-section">
-            <h2>{translations.latestThreads}</h2>
-            <div className="thread-list">
-              {latestThreads.map(thread => (
-                <ThreadPreview key={thread._id} thread={thread} />
-              ))}
-            </div>
-            <Link to="/threads" className="view-all-link">
-              {language === 'es' ? 'Ver todos los temas' : 'View all threads'}
-            </Link>
-          </section>
+        <div className="categories-section">
+          <h2>{t.categories}</h2>
+          <div className="categories-list">
+            {categories.map(category => (
+              <div key={category.id} className="category-card">
+                <h3>{category.name}</h3>
+                <p>{category.description}</p>
+                <div className="category-stats">
+                  <span>
+                    {language === 'es' ? 'Temas: ' : 'Threads: '}
+                    {category.threadCount}
+                  </span>
+                  <span>
+                    {language === 'es' ? 'Mensajes: ' : 'Posts: '}
+                    {category.postCount}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
         
-        <div className="sidebar">
-          <AdSenseComponent adSlot="0987654321" format="rectangle" style={{ marginBottom: '20px' }} />
-          
-          <section className="popular-threads-section">
-            <h3>{language === 'es' ? 'Temas Populares' : 'Popular Threads'}</h3>
-            <div className="popular-thread-list">
-              {popularThreads.map(thread => (
-                <div key={thread._id} className="popular-thread-item">
-                  <Link to={`/thread/${thread.slug}`}>
-                    {thread.title}
-                  </Link>
-                  <div className="thread-stats">
-                    <span>{thread.views} {language === 'es' ? 'vistas' : 'views'}</span>
-                    <span>{thread.replies} {language === 'es' ? 'respuestas' : 'replies'}</span>
-                  </div>
+        <div className="recent-threads-section">
+          <h2>{t.recentThreads}</h2>
+          <div className="threads-list">
+            {recentThreads.map(thread => (
+              <div key={thread.id} className="thread-card">
+                <h3>{thread.title}</h3>
+                <div className="thread-meta">
+                  <span>
+                    {language === 'es' ? 'Por: ' : 'By: '}
+                    {thread.author}
+                  </span>
+                  <span>
+                    {language === 'es' ? 'Categoría: ' : 'Category: '}
+                    {thread.category}
+                  </span>
                 </div>
-              ))}
-            </div>
-          </section>
-          
-          <UpcomingMatches />
-          
-          <OnlineUsers />
+                <div className="thread-stats">
+                  <span>
+                    {language === 'es' ? 'Respuestas: ' : 'Replies: '}
+                    {thread.replies}
+                  </span>
+                  <span>
+                    {language === 'es' ? 'Vistas: ' : 'Views: '}
+                    {thread.views}
+                  </span>
+                  <span>
+                    {language === 'es' ? 'Último mensaje: ' : 'Last post: '}
+                    {formatDate(thread.lastPost)}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
