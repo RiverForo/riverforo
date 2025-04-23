@@ -333,3 +333,15 @@ const sendTokenResponse = (user, statusCode, res) => {
       token
     });
 };
+module.exports = {
+  register,
+  login,
+  logout,
+  getMe,
+  updateDetails,
+  updatePassword,
+  forgotPassword,
+  resetPassword,
+  verifyEmail,
+  socialAuth
+};
