@@ -5,6 +5,7 @@ import { useTheme } from './contexts/ThemeContext';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
+import Login from './pages/Login'; // <-- added import
 import './App.css';
 
 function App() {
@@ -17,7 +18,7 @@ function App() {
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Home />} />
-          {/* Other routes will be added here */}
+          <Route path="/login" element={<Login />} /> {/* <-- added route */}
         </Routes>
       </main>
       <Footer />
