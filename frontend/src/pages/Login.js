@@ -24,23 +24,24 @@ const Login = () => {
   };
 
   // GOOGLE SIGN-IN HANDLER
-  useEffect(() => {
-    /* global google */
-    const initializeGoogleSignIn = () => {
-      if (window.google) {
-        google.accounts.id.initialize({
-          client_id: '158994212931-136k02nkitfv56m4j7kt2v2obvoraotk.apps.googleusercontent.com', // Your Client ID
-          callback: handleGoogleCallback
-        });
-        google.accounts.id.renderButton(
-          document.getElementById('googleSignInDiv'),
-          { theme: 'outline', size: 'large' }
-        );
-      }
-    };
+useEffect(() => {
+  const initializeGoogleSignIn = () => {
+    if (window.google) {
+      window.google.accounts.id.initialize({
+        client_id: '158994212931-136k02nkitfv56m4j7kt2v2obvoraotk.apps.googleusercontent.com',
+        callback: (response) => handleGoogleCallback(response) // wrapping inside here
+      });
+      window.google.accounts.id.renderButton(
+        document.getElementById('googleSignInDiv'),
+        { theme: 'outline', size: 'large' }
+      );
+    }
+  };
 
-    initializeGoogleSignIn();
-  }, []);
+  initializeGoogleSignIn();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
+
 
   const handleGoogleCallback = async (response) => {
     const id_token = response.credential;
