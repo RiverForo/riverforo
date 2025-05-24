@@ -17,6 +17,7 @@ dotenv.config();
 
 // Initialize Express app
 const app = express();
+app.set('trust proxy', 1); // trust first proxy (needed for Render, Vercel, etc.)
 
 // Body parser
 app.use(express.json());
