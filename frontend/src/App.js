@@ -5,7 +5,8 @@ import { useTheme } from './contexts/ThemeContext';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
-import Login from './pages/Login'; // <-- added import
+import Login from './pages/Login';
+import ThreadView from './pages/ThreadView'; // <-- newly added
 import './App.css';
 
 function App() {
@@ -18,7 +19,8 @@ function App() {
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} /> {/* <-- added route */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/thread/:id" element={<ThreadView />} /> {/* <-- new route */}
         </Routes>
       </main>
       <Footer />
